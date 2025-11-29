@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Saved Entries</title>
+</head>
+<body>
+  <h2>Stored Values</h2>
+
+  <ul>
+    {% for item in records %}
+      <li>{{ item.id }} - {{ item.value }}</li>
+    {% endfor %}
+  </ul>
+
+  <p><a href="/">Add Another</a></p>
+</body>
+</html>

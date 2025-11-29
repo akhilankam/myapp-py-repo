@@ -1,0 +1,52 @@
+name: Deploy to EKS
+
+on:
+push:
+branches: ["dev", "qa", "main"]
+
+jobs:
+deploy:
+runs-on: ubuntu-latest
+
+```
+steps:
+  - name: Checkout
+    uses: actions/checkout@v3
+
+  - name: Configure AWS Credentials
+    uses: aws-actions/configure-aws-credentials@v3
+    with:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+      aws-region: ap-south-1
+
+  - name: Login to Amazon ECR
+    uses: aws-actions/amazon-ecr-login@v2
+
+  - name: Build and Push Docker Image
+    run: |
+      IMAGE_TAG=${{ github.sha }}
+      docker build -t $ECR_URL/myapp:$IMAGE_TAG .
+      docker push $ECR_URL/myapp:$IMAGE_TAG
+
+  - name: Update Kubeconfig
+    run: aws eks update-kubeconfig --name my-eks-cluster
+
+  - name: Deploy with Helm
+    run: |
+      BRANCH=$(echo "${GITHUB_REF##*/}")
+
+      if [ "$BRANCH" = "dev" ]; then
+        VALUES=charts-values/values-dev.yaml
+      elif [ "$BRANCH" = "qa" ]; then
+        VALUES=charts-values/values-qa.yaml
+      else
+        VALUES=charts-values/values-prod.yaml
+      fi
+
+      helm upgrade --install myapp \
+        <HELMS_REPO_URL>/app-chart \
+        -f $VALUES \
+        --set image.repository=$ECR_URL/myapp \
+        --set image.tag=${{ github.sha }}
+```
