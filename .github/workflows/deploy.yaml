@@ -1,8 +1,8 @@
 name: Deploy to EKS
 
 on:
-push:
-branches: ["master"]
+ push:
+  branches: ["master"]
 
 env:
   ECR_URL: 031293725770.dkr.ecr.ap-south-1.amazonaws.com
@@ -10,9 +10,9 @@ env:
   HELM_CHART_PATH: ./helm-chart 
 
 jobs:
-deploy:
-runs-on: ubuntu-latest
-steps:
+ deploy:
+  runs-on: ubuntu-latest
+  steps:
   - name: Checkout
     uses: actions/checkout@v3
 
