@@ -2,7 +2,12 @@ name: Deploy to EKS
 
 on:
 push:
-branches: ["dev", "qa", "main"]
+branches: ["master"]
+
+env:
+  ECR_URL: 031293725770.dkr.ecr.ap-south-1.amazonaws.com
+  EKS_CLUSTER_NAME: my-eks-cluster
+  HELM_CHART_PATH: ./helm-chart 
 
 jobs:
 deploy:
@@ -24,27 +29,17 @@ steps:
   - name: Build and Push Docker Image
     run: |
       IMAGE_TAG=${{ github.sha }}
-      docker build -t $ECR_URL/myapp:$IMAGE_TAG .
-      docker push $ECR_URL/myapp:$IMAGE_TAG
+      docker build -t $ECR_URL/dev/my-repo:$IMAGE_TAG .
+      docker push $ECR_URL/dev/my-repo:$IMAGE_TAG
 
   - name: Update Kubeconfig
     run: aws eks update-kubeconfig --name my-eks-cluster
 
   - name: Deploy with Helm
     run: |
-      BRANCH=$(echo "${GITHUB_REF##*/}")
+      VALUES=charts-values/values-dev.yaml
 
-      if [ "$BRANCH" = "dev" ]; then
-        VALUES=charts-values/values-dev.yaml
-      elif [ "$BRANCH" = "qa" ]; then
-        VALUES=charts-values/values-qa.yaml
-      else
-        VALUES=charts-values/values-prod.yaml
-      fi
-
-      helm upgrade --install myapp \
-        <HELMS_REPO_URL>/app-chart \
+      helm upgrade --install myapp $HELM_CHART_PATH \
         -f $VALUES \
-        --set image.repository=$ECR_URL/myapp \
+        --set image.repository=$ECR_URL/dev/my-repo \
         --set image.tag=${{ github.sha }}
-```
