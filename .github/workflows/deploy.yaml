@@ -44,7 +44,7 @@ jobs:
     run: |
       VALUES=charts-values/values-dev.yaml
 
-      helm upgrade --install myapp ./helm-charts \
+      helm upgrade --install myapp ./helm-charts/fastapi-app \
         -f $VALUES \
         --set image.repository=$ECR_URL/dev/my-repo \
         --set image.tag=${{ github.sha }}
