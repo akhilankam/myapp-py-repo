@@ -9,7 +9,10 @@ service:
   type: ClusterIP
   port: 80
 
-iamRoleArn: "arn:aws:iam::031293725770:role/my-eks-cluster-myapp-fastapi-app-role"  # Will be set by Terraform output
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::031293725770:role/my-eks-cluster-myapp-fastapi-app-role"
 
 env:
   - name: DB_SECRET_NAME
