@@ -14,6 +14,14 @@ app = FastAPI()
 # Template directory
 templates = Jinja2Templates(directory="src/templates")
 
+# DB Session (per request)
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 # ---------------------------------------------------------
 # HEALTH CHECK ENDPOINTS
 # ---------------------------------------------------------
@@ -30,14 +38,6 @@ def readiness(db: Session = Depends(get_db)):
         return {"status": "ready"}
     except Exception as e:
         return {"status": "not_ready", "error": str(e)}, 503
-
-# DB Session (per request)
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 # ---------------------------------------------------------
 # HTML FORM
