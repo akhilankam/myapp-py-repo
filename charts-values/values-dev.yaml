@@ -10,6 +10,8 @@ service:
   port: 80
 
 env:
+  - name: DB_SECRET_NAME
+    value: "app-db-secret"
   - name: LOG_LEVEL
     value: "debug"
   - name: ENVIRONMENT
