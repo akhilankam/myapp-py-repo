@@ -14,6 +14,23 @@ app = FastAPI()
 # Template directory
 templates = Jinja2Templates(directory="src/templates")
 
+# ---------------------------------------------------------
+# HEALTH CHECK ENDPOINTS
+# ---------------------------------------------------------
+@app.get("/healthz")
+def liveness():
+    """Kubernetes liveness probe - returns OK if app is running"""
+    return {"status": "alive"}
+
+@app.get("/ready")
+def readiness(db: Session = Depends(get_db)):
+    """Kubernetes readiness probe - checks if app and DB are ready"""
+    try:
+        db.execute("SELECT 1")
+        return {"status": "ready"}
+    except Exception as e:
+        return {"status": "not_ready", "error": str(e)}, 503
+
 # DB Session (per request)
 def get_db():
     db = SessionLocal()
