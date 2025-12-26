@@ -12,7 +12,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 # Template directory
-templates = Jinja2Templates(directory="src/app/templates")
+templates = Jinja2Templates(directory="templates")
 
 # DB Session (per request)
 def get_db():
